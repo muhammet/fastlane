@@ -303,9 +303,16 @@ module Frameit
       UI.user_error! "Valid parameters :keyword, :title" unless [:keyword, :title].include? type
 
       # Try to get it from a keyword.strings or title.strings file
-      strings_path = File.join(File.expand_path("..", screenshot.path), "#{type}.strings")
+      strings_path = File.join(File.expand_path("..", screenshot.path), "#{type}.csv")
       if File.exist? strings_path
-        parsed = StringsParser.parse(strings_path)
+        require 'csv'
+        parsed = {}
+
+        CSV.foreach(strings_path) do |row|
+          parsed[row[0]] =  row[1]
+        end
+
+        # parsed = StringsParser.parse(strings_path)
         result = parsed.find { |k, v| screenshot.path.upcase.include? k.upcase }
         return result.last if result
       end
